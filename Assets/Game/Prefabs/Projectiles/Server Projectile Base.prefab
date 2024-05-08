@@ -49,7 +49,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 17a7b1db1e4b4c738d707790cc50c62f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  <DamageAmount>k__BackingField: 10
+  <DamageAmount>k__BackingField: 25
   destroyer: {fileID: 8552842655309817062}
 --- !u!114 &8552842655309817062 stripped
 MonoBehaviour:

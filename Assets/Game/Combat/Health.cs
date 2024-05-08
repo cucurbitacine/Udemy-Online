@@ -28,10 +28,8 @@ namespace Game.Combat
 
             CurrentHealth.Value = value;
             
-            if (CurrentHealth.Value == 0)
+            if (isDead)
             {
-                isDead = true;
-                
                 OnDie?.Invoke(this);
             }
         }
@@ -43,11 +41,26 @@ namespace Game.Combat
             UpdateHealth(value);
         }
         
+        private void OnValueChanged(int previousValue, int newValue)
+        {
+            isDead = newValue <= 0;
+        }
+        
         public override void OnNetworkSpawn()
         {
             if (!IsServer) return;
 
             UpdateHealth(MaxHealth);
+        }
+
+        private void OnEnable()
+        {
+            CurrentHealth.OnValueChanged += OnValueChanged;
+        }
+
+        private void OnDisable()
+        {
+            CurrentHealth.OnValueChanged -= OnValueChanged;
         }
     }
 }

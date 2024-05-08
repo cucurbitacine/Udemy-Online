@@ -21,12 +21,13 @@ namespace Game.Net.Host
         public const int MaxConnections = 20;
         public const float HeartbeatPeriod = 15;
         
-        public UnityTransport transport { get; private set; }
-        public NetworkServer server { get; private set; }
-        public Allocation allocation { get; private set; }
-        public string joinCode { get; private set; }
-        public string lobbyId { get; private set; }
-        public Coroutine heartbeating { get; private set; }
+        public NetworkServer Server { get; private set; }
+        
+        private UnityTransport transport { get; set; }
+        private Allocation allocation { get; set; }
+        private string joinCode { get; set; }
+        private string lobbyId { get; set; }
+        private Coroutine heartbeating { get; set; }
         
         public async Task StartHostAsync()
         {
@@ -101,7 +102,7 @@ namespace Game.Net.Host
                 return;
             }
 
-            server = new NetworkServer(networkManager);
+            Server = new NetworkServer(networkManager);
                 
             // Generating Payloads
             var json = JsonUtility.ToJson(userData);
@@ -111,23 +112,29 @@ namespace Game.Net.Host
             // Start Host
             networkManager.StartHost();
 
+            Server.OnClientLeft += HandleClientLeft;
+            
             // Load Game Scene
             networkManager.SceneManager.LoadScene("Game", LoadSceneMode.Single);
         }
 
-        private IEnumerator HeartbeatLobby(float period)
+        private async void HandleClientLeft(string authId)
         {
-            var delay = new WaitForSecondsRealtime(period);
-            
-            while (true)
+            try
             {
-                lobbies.SendHeartbeatPingAsync(lobbyId);
-                
-                yield return delay;
+                await lobbies.RemovePlayerAsync(lobbyId, authId);
+            }
+            catch (LobbyServiceException e)
+            {
+                Debug.LogError(e);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(e);
             }
         }
 
-        public override async void Dispose()
+        public async void Shutdown()
         {
             if (heartbeating != null)
             {
@@ -151,7 +158,26 @@ namespace Game.Net.Host
                 lobbyId = string.Empty;
             }
             
-            server?.Dispose();
+            Server.OnClientLeft -= HandleClientLeft;
+            
+            Server?.Dispose();
+        }
+        
+        private IEnumerator HeartbeatLobby(float period)
+        {
+            var delay = new WaitForSecondsRealtime(period);
+            
+            while (true)
+            {
+                lobbies.SendHeartbeatPingAsync(lobbyId);
+                
+                yield return delay;
+            }
+        }
+
+        public override void Dispose()
+        {
+            Shutdown();
         }
     }
 }

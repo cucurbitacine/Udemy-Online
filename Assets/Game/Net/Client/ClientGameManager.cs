@@ -14,9 +14,10 @@ namespace Game.Net.Client
 {
     public class ClientGameManager : GameManager
     {
-        public UnityTransport transport { get; private set; }
-        public JoinAllocation allocation { get; private set; }
-        public NetworkClient client { get; private set; }
+        public NetworkClient Client { get; private set; }
+        
+        private UnityTransport transport { get;  set; }
+        private JoinAllocation allocation { get;  set; }
         
         public async Task<bool> InitializeAsync()
         {
@@ -26,7 +27,7 @@ namespace Game.Net.Client
             await UnityServices.InitializeAsync();
             Log("Unity Services was initialized!");
 
-            client = new NetworkClient(networkManager);
+            Client = new NetworkClient(networkManager);
             
             Log("Authenticating...");
             var authState = await AuthenticationWrapper.Authenticate();
@@ -48,7 +49,11 @@ namespace Game.Net.Client
             // Joining to Allocation via JoinCode
             try
             {
+                Debug.Log($"Try to Join allocation with Join Code: {joinCode}");
+                
                 allocation = await relay.JoinAllocationAsync(joinCode);
+                
+                Debug.Log($"Joining allocation finished");
             }
             catch (Exception e)
             {
@@ -77,14 +82,28 @@ namespace Game.Net.Client
             var json = JsonUtility.ToJson(userData);
             var payload = NetworkServer.Encoding.GetBytes(json);
             networkManager.NetworkConfig.ConnectionData = payload;
-                
+            
             // Start Client
-            networkManager.StartClient();
+            var status = networkManager.StartClient();
+
+            if (status)
+            {
+                Debug.Log($"Client was Started");
+            }
+            else
+            {
+                Debug.LogWarning($"Client wasn't Started");
+            }
         }
         
         public void LoadMenu()
         {
             LoadScene(NetworkClient.MainMenuSceneName);
+        }
+
+        public void Disconnect()
+        {
+            Client.Disconnect();
         }
         
         private void LoadScene(string sceneName)
@@ -96,7 +115,7 @@ namespace Game.Net.Client
 
         public override void Dispose()
         {
-            client?.Dispose();
+            Client?.Dispose();
         }
     }
 }

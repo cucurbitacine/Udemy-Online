@@ -7,7 +7,7 @@ using Unity.Services.Lobbies;
 using Unity.Services.Lobbies.Models;
 using UnityEngine;
 
-namespace Game.UI
+namespace Game.UI.LobbyDisplay
 {
     public class LobbiesList : MonoBehaviour
     {
@@ -19,17 +19,36 @@ namespace Game.UI
 
         public async Task JoinAsync(Lobby lobby)
         {
-            if (isJoining) return;
+            if (isJoining)
+            {
+                Debug.LogWarning("I am already joining");
+                
+                return;
+            }
 
             isJoining = true;
 
             try
             {
+                Debug.Log($"Try to join lobby by Id: {lobby.Id}");
+                
                 var joiningLobby = await Lobbies.Instance.JoinLobbyByIdAsync(lobby.Id);
 
+                Debug.Log($"I joined lobby with Id: {lobby.Id}");
+                Debug.Log($"Try to get Join Code");
+                
                 if (joiningLobby.Data.TryGetValue(GameManager.JoinCodeKey, out var joinCode))
                 {
+                    Debug.Log($"Join Code was found");
+                    Debug.Log($"Try to start client with Join Code: {joinCode.Value}");
+                    
                     await ClientController.Instance.GameManager.StartClientAsync(joinCode.Value);
+                    
+                    Debug.Log($"Starting client finished");
+                }
+                else
+                {
+                    Debug.LogWarning($"Join Code was not found");
                 }
             }
             catch (LobbyServiceException lobbyException)

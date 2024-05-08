@@ -2,7 +2,7 @@ using TMPro;
 using Unity.Services.Lobbies.Models;
 using UnityEngine;
 
-namespace Game.UI
+namespace Game.UI.LobbyDisplay
 {
     public class LobbyItem : MonoBehaviour
     {

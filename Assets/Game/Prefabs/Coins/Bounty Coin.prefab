@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1001 &5243545906331872873
+--- !u!1001 &7848807959433831889
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -10,7 +10,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1043241911767483180, guid: 876e1fae9c865e645986679544ffc449, type: 3}
       propertyPath: GlobalObjectIdHash
-      value: 3874281467
+      value: 1227809670
+      objectReference: {fileID: 0}
+    - target: {fileID: 1043241911767483180, guid: 876e1fae9c865e645986679544ffc449, type: 3}
+      propertyPath: InScenePlacedSourceGlobalObjectIdHash
+      value: 1550738222
       objectReference: {fileID: 0}
     - target: {fileID: 1089961169656919746, guid: 876e1fae9c865e645986679544ffc449, type: 3}
       propertyPath: m_LocalPosition.x
@@ -54,72 +58,42 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2071205699068973693, guid: 876e1fae9c865e645986679544ffc449, type: 3}
       propertyPath: m_Name
-      value: Respawning Coin
+      value: Bounty Coin
       objectReference: {fileID: 0}
+    - target: {fileID: 8125598928782934505, guid: 876e1fae9c865e645986679544ffc449, type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 7bfd0a0977e81b84a8f1d12195e5883a, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 2071205699068973693, guid: 876e1fae9c865e645986679544ffc449, type: 3}
-      insertIndex: 2
-      addedObject: {fileID: -5232631554746722586}
-    - targetCorrespondingSourceObject: {fileID: 2071205699068973693, guid: 876e1fae9c865e645986679544ffc449, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 6528871334646317060}
+      addedObject: {fileID: 2779638354746281620}
   m_SourcePrefab: {fileID: 100100000, guid: 876e1fae9c865e645986679544ffc449, type: 3}
---- !u!212 &4037261651034746752 stripped
+--- !u!212 &2030978767600034872 stripped
 SpriteRenderer:
   m_CorrespondingSourceObject: {fileID: 8125598928782934505, guid: 876e1fae9c865e645986679544ffc449, type: 3}
-  m_PrefabInstance: {fileID: 5243545906331872873}
+  m_PrefabInstance: {fileID: 7848807959433831889}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &6087379763152305172 stripped
+--- !u!1 &8093804009192339372 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2071205699068973693, guid: 876e1fae9c865e645986679544ffc449, type: 3}
-  m_PrefabInstance: {fileID: 5243545906331872873}
+  m_PrefabInstance: {fileID: 7848807959433831889}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &-5232631554746722586
+--- !u!114 &2779638354746281620
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6087379763152305172}
+  m_GameObject: {fileID: 8093804009192339372}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e96cb6065543e43c4a752faaa1468eb1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  UseUnreliableDeltas: 0
-  SyncPositionX: 1
-  SyncPositionY: 1
-  SyncPositionZ: 0
-  SyncRotAngleX: 0
-  SyncRotAngleY: 0
-  SyncRotAngleZ: 0
-  SyncScaleX: 0
-  SyncScaleY: 0
-  SyncScaleZ: 0
-  PositionThreshold: 0.001
-  RotAngleThreshold: 0.01
-  ScaleThreshold: 0.01
-  UseQuaternionSynchronization: 0
-  UseQuaternionCompression: 0
-  UseHalfFloatPrecision: 0
-  InLocalSpace: 0
-  Interpolate: 0
-  SlerpPosition: 0
---- !u!114 &6528871334646317060
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6087379763152305172}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1eb50e90bfe04935ad24794dd316715c, type: 3}
+  m_Script: {fileID: 11500000, guid: 0cf566df78b44fd8a5556d0e9c7bcb47, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   <AlreadyCollected>k__BackingField: 0
   <CoinValue>k__BackingField: 10
-  sprite: {fileID: 4037261651034746752}
+  sprite: {fileID: 2030978767600034872}

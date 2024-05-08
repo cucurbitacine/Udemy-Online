@@ -1,5 +1,3 @@
-using System;
-using Game.Net.Host;
 using Inputs;
 using Unity.Netcode;
 using UnityEngine;
@@ -62,14 +60,6 @@ namespace Game.Player
                 {
                     rigid.velocity = body.up * (movement.y * speed);
                 }
-            }
-        }
-
-        private void OnGUI()
-        {
-            if (IsServer && HostController.Instance)
-            {
-                GUILayout.Box(HostController.Instance.GameManager.joinCode);
             }
         }
     }

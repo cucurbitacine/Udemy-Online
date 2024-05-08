@@ -21,6 +21,11 @@ namespace Game.Net.Client
         {
             if (clientId != 0 && clientId != networkManager.LocalClientId) return;
 
+            Disconnect();
+        }
+
+        public void Disconnect()
+        {
             if (SceneManager.GetActiveScene().name != MainMenuSceneName)
             {
                 SceneManager.LoadScene(MainMenuSceneName);
@@ -31,7 +36,7 @@ namespace Game.Net.Client
                 networkManager.Shutdown();
             }
         }
-
+        
         public void Dispose()
         {
             if (networkManager)
