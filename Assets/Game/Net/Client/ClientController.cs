@@ -7,7 +7,7 @@ namespace Game.Net.Client
     {
         public ClientGameManager GameManager { get; private set; }
 
-        public async Task<bool> Create()
+        public async Task<bool> CreateClient()
         {
             GameManager = new ClientGameManager();
 

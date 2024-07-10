@@ -16,7 +16,7 @@ namespace Game.Utils
 
                 if (_instance == null)
                 {
-                    Debug.LogError($"No \"{typeof(T).Name}\" in the Scene");
+                    Debug.LogWarning($"No \"{typeof(T).Name}\" in the Scene");
                 }
 
                 return _instance;

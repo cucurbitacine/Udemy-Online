@@ -390,7 +390,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 8319708890554924810}
-        m_TargetAssemblyTypeName: Game.UI.LobbyItem, Game
+        m_TargetAssemblyTypeName: Game.UI.LobbyDisplay.LobbyItem, Game.UI
         m_MethodName: Join
         m_Mode: 1
         m_Arguments:

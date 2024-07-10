@@ -13,6 +13,9 @@ namespace Game.Net
         public static NetworkManager networkManager => NetworkManager.Singleton;
 
         public const string JoinCodeKey = "JoinCode";
+     
+        public const string MainMenuSceneName = "Menu";
+        public const string GameSceneName = "Game";
         
         protected void Log(string msg)
         {

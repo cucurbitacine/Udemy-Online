@@ -22,9 +22,9 @@ namespace Game.UI.LobbyDisplay
             lobbyPlayers.text = $"{lobby.Players.Count} / {lobby.MaxPlayers}";
         }
 
-        public async void Join()
+        public void Join()
         {
-            await lobbiesList.JoinAsync(lobby);
+            lobbiesList.JoinAsync(lobby);
         }
     }
 }

@@ -8,7 +8,7 @@ namespace Game.Utils
 
         private void OnDestroy()
         {
-            if (prefab)
+            if (prefab && gameObject.scene.isLoaded)
             {
                 Instantiate(prefab, transform.position, Quaternion.identity);
             }

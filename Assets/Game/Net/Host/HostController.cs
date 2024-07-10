@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using Game.Utils;
+using Unity.Netcode;
 
 namespace Game.Net.Host
 {
@@ -7,9 +8,11 @@ namespace Game.Net.Host
     {
         public HostGameManager GameManager { get; private set; }
         
-        public async Task Create()
+        public Task CreateHost(NetworkObject playerPrefab)
         {
-            GameManager = new HostGameManager();
+            GameManager = new HostGameManager(playerPrefab);
+            
+            return Task.CompletedTask;
         }
 
         private void OnDestroy()

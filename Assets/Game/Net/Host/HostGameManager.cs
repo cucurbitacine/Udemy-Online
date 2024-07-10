@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Game.Net.Server;
 using Game.Net.Shared;
+using Unity.Netcode;
 using Unity.Netcode.Transports.UTP;
 using Unity.Networking.Transport.Relay;
 using Unity.Services.Authentication;
@@ -28,6 +29,13 @@ namespace Game.Net.Host
         private string joinCode { get; set; }
         private string lobbyId { get; set; }
         private Coroutine heartbeating { get; set; }
+
+        private readonly NetworkObject playerPrefab;
+
+        public HostGameManager(NetworkObject playerPrefab)
+        {
+            this.playerPrefab = playerPrefab;
+        }
         
         public async Task StartHostAsync()
         {
@@ -102,7 +110,7 @@ namespace Game.Net.Host
                 return;
             }
 
-            Server = new NetworkServer(networkManager);
+            Server = new NetworkServer(networkManager, playerPrefab);
                 
             // Generating Payloads
             var json = JsonUtility.ToJson(userData);
@@ -115,7 +123,7 @@ namespace Game.Net.Host
             Server.OnClientLeft += HandleClientLeft;
             
             // Load Game Scene
-            networkManager.SceneManager.LoadScene("Game", LoadSceneMode.Single);
+            networkManager.SceneManager.LoadScene(GameSceneName, LoadSceneMode.Single);
         }
 
         private async void HandleClientLeft(string authId)
@@ -138,12 +146,9 @@ namespace Game.Net.Host
         {
             if (heartbeating != null)
             {
-                if (HostController.Instance)
-                {
-                    HostController.Instance.StopCoroutine(heartbeating);
-                }
+                HostController.Instance?.StopCoroutine(heartbeating);
             }
-
+            
             if (!string.IsNullOrWhiteSpace(lobbyId))
             {
                 try
@@ -157,10 +162,13 @@ namespace Game.Net.Host
 
                 lobbyId = string.Empty;
             }
-            
-            Server.OnClientLeft -= HandleClientLeft;
-            
-            Server?.Dispose();
+
+            if (Server != null)
+            {
+                Server.OnClientLeft -= HandleClientLeft;
+                
+                Server.Dispose();
+            }
         }
         
         private IEnumerator HeartbeatLobby(float period)

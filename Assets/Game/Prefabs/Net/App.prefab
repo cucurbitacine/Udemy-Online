@@ -47,3 +47,5 @@ MonoBehaviour:
   debugLog: 1
   clientPrefab: {fileID: 614192658919326375, guid: de4689fd358945e479a89d90d71742e6, type: 3}
   hostPrefab: {fileID: 7550427842890870812, guid: 3131becceccf6764282984bf691042f3, type: 3}
+  serverPrefab: {fileID: 2847810757961455831, guid: b8bc8fb788e54e14aa0cc6be8789b3e2, type: 3}
+  playerPrefab: {fileID: 8246207295205210137, guid: 82048801f9fdd8a45a91115c9f6c25a0, type: 3}

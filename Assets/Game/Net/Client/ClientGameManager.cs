@@ -14,10 +14,13 @@ namespace Game.Net.Client
 {
     public class ClientGameManager : GameManager
     {
-        public NetworkClient Client { get; private set; }
+        private NetworkClient Client { get; set; }
+        private MatchplayMatchmaker Matchmaker { get; set; }
+
+        private UnityTransport transport;
+        private JoinAllocation allocation;
         
-        private UnityTransport transport { get;  set; }
-        private JoinAllocation allocation { get;  set; }
+        private UserData userData;
         
         public async Task<bool> InitializeAsync()
         {
@@ -28,12 +31,20 @@ namespace Game.Net.Client
             Log("Unity Services was initialized!");
 
             Client = new NetworkClient(networkManager);
+            Matchmaker = new MatchplayMatchmaker();
             
             Log("Authenticating...");
             var authState = await AuthenticationWrapper.Authenticate();
 
             if (authState == AuthState.Authenticated)
             {
+                // Creating User Data
+                userData = new UserData
+                {
+                    userName = PlayerPrefs.GetString(NetworkServer.PlayerNameKey, string.Empty),
+                    userAuthID = AuthenticationService.Instance.PlayerId,
+                };
+                
                 // Good
                 Log("Authenticated!");
                 return true;
@@ -42,6 +53,20 @@ namespace Game.Net.Client
             // Bad
             LogError("Authentication was failed!");
             return false;
+        }
+
+        public void StartClient(string ip, int port)
+        {
+            // Getting Transport
+            if (!networkManager.TryGetComponent<UnityTransport>(out transport))
+            {
+                Debug.LogError($"\"{nameof(UnityTransport)}\" was NOT found!");
+                return;
+            }
+
+            transport.SetConnectionData(ip, (ushort)port);
+            
+            ConnectClient();
         }
         
         public async Task StartClientAsync(string joinCode)
@@ -62,8 +87,7 @@ namespace Game.Net.Client
             }
 
             // Getting Transport
-            transport = networkManager.GetComponent<UnityTransport>();
-            if (transport == null)
+            if (!networkManager.TryGetComponent<UnityTransport>(out transport))
             {
                 Debug.LogError($"\"{nameof(UnityTransport)}\" was NOT found!");
                 return;
@@ -73,11 +97,11 @@ namespace Game.Net.Client
             var relayServerData = new RelayServerData(allocation, "dtls"); // or udp
             transport.SetRelayServerData(relayServerData);
 
-            // Creating User Data
-            var userData = new UserData();
-            userData.userName = PlayerPrefs.GetString(NetworkServer.PlayerNameKey, string.Empty);
-            userData.userAuthID = AuthenticationService.Instance.PlayerId; 
-                    
+            ConnectClient();
+        }
+
+        private void ConnectClient()
+        {
             // Generating Payloads
             var json = JsonUtility.ToJson(userData);
             var payload = NetworkServer.Encoding.GetBytes(json);
@@ -95,10 +119,39 @@ namespace Game.Net.Client
                 Debug.LogWarning($"Client wasn't Started");
             }
         }
-        
-        public void LoadMenu()
+
+        public async void MatchmakeAsync(Action<MatchmakerPollingResult> response)
         {
-            LoadScene(NetworkClient.MainMenuSceneName);
+            if (Matchmaker.IsMatchmaking)
+            {
+                return;
+            }
+
+            var result = await GetMatchAsync();
+            
+            response?.Invoke(result);
+        }
+        
+        private async Task<MatchmakerPollingResult> GetMatchAsync()
+        {
+            var match = await Matchmaker.Matchmake(userData);
+
+            if (match.result == MatchmakerPollingResult.Success)
+            {
+                StartClient(match.ip, match.port);
+            }
+
+            return match.result;
+        }
+        
+        public async Task CancelMatchmaking()
+        {
+            await Matchmaker.CancelMatchmaking();
+        }
+        
+        public void LoadMainMenu()
+        {
+            LoadScene(MainMenuSceneName);
         }
 
         public void Disconnect()

@@ -56,6 +56,8 @@ namespace Game.UI.LeaderboardDisplay
 
         private void HandleListChanged(NetworkListEvent<LeaderboardEntity> changeEvent)
         {
+            if (!gameObject.scene.isLoaded) return;
+            
             switch (changeEvent.Type)
             {
                 case NetworkListEvent<LeaderboardEntity>.EventType.Add:

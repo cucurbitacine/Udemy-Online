@@ -1,7 +1,7 @@
+using Game.Net;
 using Game.Net.Server;
 using TMPro;
 using UnityEngine;
-using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -16,11 +16,6 @@ namespace Game.UI
         private TMP_InputField nameField;
 
         [SerializeField] private Button connectButton;
-
-        private bool IsServer()
-        {
-            return SystemInfo.graphicsDeviceType == GraphicsDeviceType.Null;
-        }
         
         private void LoadPlayerName()
         {
@@ -103,9 +98,10 @@ namespace Game.UI
 
         private void Start()
         {
-            if (IsServer())
+            if (ApplicationController.IsDedicatedServer)
             {
                 LoadNextScene();
+                
                 return;
             }
             

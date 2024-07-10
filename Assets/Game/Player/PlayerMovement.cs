@@ -1,3 +1,4 @@
+using System;
 using Inputs;
 using Unity.Netcode;
 using UnityEngine;
@@ -9,15 +10,23 @@ namespace Game.Player
         public Vector2 movement;
         
         [Header("Settings")]
-        public float speed = 4f;
-        public float turningRate = 30f;
+        [SerializeField] private float speed = 4f;
+        [SerializeField] private float turningRate = 30f;
+        [SerializeField] private float particleEmissionValue = 10;
+        
         
         [Header("References")]
         [SerializeField] private Transform body;
         [SerializeField] private Rigidbody2D rigid;
+        [SerializeField] private ParticleSystem dustCloud;
         
         [Space]
         [SerializeField] private InputReader input;
+
+        private Vector3 previousPosition;
+        private ParticleSystem.EmissionModule emissionModule;
+        
+        private const float ParticleStopThreshold = 0.005f;
         
         private void HandleMove(Vector2 move)
         {
@@ -40,6 +49,14 @@ namespace Game.Player
             } 
         }
 
+        private void Awake()
+        {
+            if (dustCloud)
+            {
+                emissionModule = dustCloud.emission;
+            }
+        }
+
         private void Update()
         {
             if (IsOwner)
@@ -54,6 +71,17 @@ namespace Game.Player
 
         private void FixedUpdate()
         {
+            if ((previousPosition - transform.position).sqrMagnitude > ParticleStopThreshold)
+            {
+                emissionModule.rateOverTime = particleEmissionValue;
+            }
+            else
+            {
+                emissionModule.rateOverTime = 0f;
+            }
+            
+            previousPosition = transform.position;
+            
             if (IsOwner)
             {
                 if (rigid && body)

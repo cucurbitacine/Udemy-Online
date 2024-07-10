@@ -3,6 +3,7 @@ using Game.Combat;
 using Inputs;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.EventSystems;
 
 namespace Game.Player
 {
@@ -30,6 +31,8 @@ namespace Game.Player
 
         private float timerFire = 0f;
         private float flashTimer = 0f;
+
+        private bool isPointerOverUI;
         
         public override void OnNetworkSpawn()
         {
@@ -49,6 +52,8 @@ namespace Game.Player
 
         private void OnPrimaryFire(bool fire)
         {
+            if (fire && isPointerOverUI) return;
+            
             primaryFire = fire;
         }
 
@@ -153,6 +158,8 @@ namespace Game.Player
         {
             if (!IsOwner) return;
 
+            isPointerOverUI = EventSystem.current.IsPointerOverGameObject();
+            
             UpdateFire(Time.deltaTime);
 
             if (Input.GetKeyDown(KeyCode.C))

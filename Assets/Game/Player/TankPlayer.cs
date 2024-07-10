@@ -3,6 +3,8 @@ using Cinemachine;
 using Game.Coins;
 using Game.Combat;
 using Game.Net.Host;
+using Game.Net.Server;
+using Game.Net.Shared;
 using Game.Utils;
 using Unity.Collections;
 using Unity.Netcode;
@@ -20,6 +22,7 @@ namespace Game.Player
         [Header("Camera")]
         [SerializeField] private int ownerPriority = 15;
         [SerializeField] private CinemachineVirtualCameraBase virtualCamera;
+        [SerializeField] private Texture2D crosshair;
 
         [Header("Minimap")]
         [SerializeField] private Color colorPlayer = Color.yellow;
@@ -32,7 +35,7 @@ namespace Game.Player
         
         public static event Action<TankPlayer> OnPlayerSpawned; 
         public static event Action<TankPlayer> OnPlayerDespawned;
-        
+        /*
         [Rpc(SendTo.Owner)]
         public void TeleportRpc(Vector3 newPosition, Quaternion newRotation, Vector3 newScale)
         {
@@ -41,7 +44,7 @@ namespace Game.Player
                 netTransform.Teleport(newPosition, newRotation, newScale);
             }
         }
-
+        */
         private void HandleDie(Health health)
         {
             OnDie?.Invoke(this);
@@ -56,8 +59,12 @@ namespace Game.Player
         {
             if (IsServer)
             {
-                var userData = HostController.Instance.GameManager.Server.GetUserData(OwnerClientId);
-
+                var server = IsHost
+                    ? HostController.Instance.GameManager.Server
+                    : ServerController.Instance.GameManager.Server;
+                
+                var  userData = server.GetUserData(OwnerClientId);
+                
                 PlayerName.Value = userData.userName;
                 
                 Health.OnDie += HandleDie;
@@ -66,14 +73,22 @@ namespace Game.Player
                 
                 OnPlayerSpawned?.Invoke(this);
             }
-            
-            if (IsOwner && virtualCamera)
-            {
-                virtualCamera.Priority = ownerPriority;
 
-                if (IsClient && minimapIcon)
+            if (IsOwner)
+            {
+                if (crosshair)
                 {
-                    minimapIcon.color = colorPlayer;
+                    Cursor.SetCursor(crosshair, new Vector2(crosshair.width * 0.5f, crosshair.height * 0.5f), CursorMode.Auto);   
+                }
+                
+                if (virtualCamera)
+                {
+                    virtualCamera.Priority = ownerPriority;
+
+                    if (IsClient && minimapIcon)
+                    {
+                        minimapIcon.color = colorPlayer;
+                    }
                 }
             }
         }
