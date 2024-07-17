@@ -55,7 +55,7 @@ namespace Game.Net
             Log("Host was created!");
         }
 
-        private async Task CreateServer()
+        private void CreateServer()
         {
             Application.targetFrameRate = 60;
             
@@ -97,7 +97,7 @@ namespace Game.Net
         {
             if (isDedicatedServer)
             {
-                await CreateServer();
+                CreateServer();
             }
             else
             {

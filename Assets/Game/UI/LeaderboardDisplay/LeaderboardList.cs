@@ -1,5 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
+using Game.Net.Client;
+using Game.Net.Shared;
 using Game.Player;
 using Unity.Netcode;
 using UnityEngine;
@@ -8,18 +10,29 @@ namespace Game.UI.LeaderboardDisplay
 {
     public class LeaderboardList : NetworkBehaviour
     {
-        [SerializeField] private Transform holder;
         [SerializeField] private LeaderboardEntityDisplay leaderboardEntityPrefab;
+        
+        [Header("Players")]
+        [SerializeField] private Transform holder;
         [SerializeField] private int maxDisplay = 8;
-
+        [SerializeField] private Color ownerColor = Color.yellow;
+        
+        [Header("Teams")]
+        [SerializeField] private Transform teamHolder;
+        [SerializeField] private GameObject teamLeaderboardBackground;
+        [SerializeField] private string[] teamNames;
+        [SerializeField] private TeamColorPalette teamPalette;
+        
         private NetworkList<LeaderboardEntity> entities;
         private readonly List<LeaderboardEntityDisplay> displays = new List<LeaderboardEntityDisplay>();
+        private readonly List<LeaderboardEntityDisplay> teamDisplays = new List<LeaderboardEntityDisplay>();
 
         private static LeaderboardEntity CreateEntity(TankPlayer player)
         {
             return new LeaderboardEntity()
             {
                 clientId = player.OwnerClientId,
+                teamIndex = player.TeamIndex.Value,
                 playerName = player.PlayerName.Value,
                 score = player.Wallet.TotalCoins.Value,
             };
@@ -65,10 +78,19 @@ namespace Game.UI.LeaderboardDisplay
                     if (displays.All(d => d.ClientId != changeEvent.Value.clientId))
                     {
                         var item = Instantiate(leaderboardEntityPrefab, holder);
-                        displays.Add(item);
+                        
 
-                        item.UpdatePlayer(changeEvent.Value.clientId, changeEvent.Value.playerName.Value,
+                        item.Initilalize(
+                            changeEvent.Value.clientId,
+                            changeEvent.Value.playerName.Value,
                             changeEvent.Value.score);
+
+                        if (NetworkManager.Singleton.LocalClientId == changeEvent.Value.clientId)
+                        {
+                            item.SetColor(ownerColor);
+                        }
+                        
+                        displays.Add(item);
                     }
 
                     break;
@@ -119,6 +141,32 @@ namespace Game.UI.LeaderboardDisplay
                     myDisplay.gameObject.SetActive(true);
                 }
             }
+
+            if (teamLeaderboardBackground.activeSelf)
+            {
+                var teamDisplay = teamDisplays.FirstOrDefault(d => d.TeamIndex == changeEvent.Value.teamIndex);
+
+                if (teamDisplay)
+                {
+                    if (changeEvent.Type == NetworkListEvent<LeaderboardEntity>.EventType.Remove)
+                    {
+                        teamDisplay.UpdateScore(teamDisplay.Score - changeEvent.Value.score);
+                    }
+                    else
+                    {
+                        var deltaScore = changeEvent.Value.score - changeEvent.PreviousValue.score;
+                        teamDisplay.UpdateScore(teamDisplay.Score + deltaScore);
+                    }
+                }
+                
+                teamDisplays.Sort((x, y) => y.Score.CompareTo(x.Score));
+
+                for (var i = 0; i < teamDisplays.Count; i++)
+                {
+                    teamDisplays[i].transform.SetSiblingIndex(i);
+                    teamDisplays[i].UpdateText(i + 1);
+                }
+            }
         }
 
         private void HandlePlayerCoinChanged(TankPlayer player)
@@ -130,7 +178,7 @@ namespace Game.UI.LeaderboardDisplay
                 if (entity.clientId == player.OwnerClientId)
                 {
                     entity.score = player.Wallet.TotalCoins.Value;
-
+                    
                     entities[i] = entity;
                 }
             }
@@ -140,6 +188,24 @@ namespace Game.UI.LeaderboardDisplay
         {
             if (IsClient)
             {
+                if (ClientController.Instance.GameManager.UserData.userGamePreferences.gameQueue == GameQueue.Team)
+                {
+                    if (teamLeaderboardBackground)
+                    {
+                        teamLeaderboardBackground.SetActive(true);
+
+                        for (var i = 0; i < teamNames.Length; i++)
+                        {
+                            var team = Instantiate(leaderboardEntityPrefab, teamHolder);
+                            
+                            team.Initilalize(i, teamNames[i], 0);
+                            team.SetColor(teamPalette.GetTeamColor(i));
+                            
+                            teamDisplays.Add(team);
+                        }
+                    }
+                }
+                
                 entities.OnListChanged += HandleListChanged;
 
                 foreach (var entity in entities)

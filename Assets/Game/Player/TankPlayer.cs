@@ -4,11 +4,8 @@ using Game.Coins;
 using Game.Combat;
 using Game.Net.Host;
 using Game.Net.Server;
-using Game.Net.Shared;
-using Game.Utils;
 using Unity.Collections;
 using Unity.Netcode;
-using Unity.Netcode.Components;
 using UnityEngine;
 
 namespace Game.Player
@@ -29,22 +26,14 @@ namespace Game.Player
         [SerializeField] private SpriteRenderer minimapIcon;
         
         public NetworkVariable<FixedString32Bytes> PlayerName = new NetworkVariable<FixedString32Bytes>();
+        public NetworkVariable<int> TeamIndex = new NetworkVariable<int>();
 
         public event Action<TankPlayer> OnDie; 
         public event Action<TankPlayer> OnCoinChanged; 
         
         public static event Action<TankPlayer> OnPlayerSpawned; 
         public static event Action<TankPlayer> OnPlayerDespawned;
-        /*
-        [Rpc(SendTo.Owner)]
-        public void TeleportRpc(Vector3 newPosition, Quaternion newRotation, Vector3 newScale)
-        {
-            if (TryGetComponent<NetworkTransform>(out var netTransform))
-            {
-                netTransform.Teleport(newPosition, newRotation, newScale);
-            }
-        }
-        */
+
         private void HandleDie(Health health)
         {
             OnDie?.Invoke(this);
@@ -63,9 +52,10 @@ namespace Game.Player
                     ? HostController.Instance.GameManager.Server
                     : ServerController.Instance.GameManager.Server;
                 
-                var  userData = server.GetUserData(OwnerClientId);
+                var userData = server.GetUserData(OwnerClientId);
                 
                 PlayerName.Value = userData.userName;
+                TeamIndex.Value = userData.teamIndex;
                 
                 Health.OnDie += HandleDie;
                 

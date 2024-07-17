@@ -10385,6 +10385,7 @@ MonoBehaviour:
   costToFire: 10
   serverProjectilePrefab: {fileID: 2221616949229809123, guid: 938af1d9d867b7d4e8ccef32fdea4d9e, type: 3}
   clientProjectilePrefab: {fileID: 897506671921669660, guid: 8e55c730c34f35f44afeeed2e6bac761, type: 3}
+  player: {fileID: 3056082941397117247}
   spawnPoint: {fileID: 7267493070959018269}
   flash: {fileID: 7854774328376443082}
   playerCollider: {fileID: 2642725759113725271}
@@ -10483,6 +10484,8 @@ MonoBehaviour:
         byte0027: 0
         byte0028: 0
         byte0029: 0
+  TeamIndex:
+    m_InternalValue: 0
 --- !u!1 &6256920531363371482
 GameObject:
   m_ObjectHideFlags: 0
@@ -15603,6 +15606,7 @@ GameObject:
   - component: {fileID: 931391496163985256}
   - component: {fileID: 2642725759113725271}
   - component: {fileID: 7011827973840285114}
+  - component: {fileID: 4657393139850390608}
   m_Layer: 0
   m_Name: TankTreads
   m_TagString: Untagged
@@ -15757,6 +15761,24 @@ MonoBehaviour:
   InLocalSpace: 0
   Interpolate: 1
   SlerpPosition: 0
+--- !u!114 &4657393139850390608
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7907893973226915437}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a7f02c7d57947b581cca7b1f9f94ce8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  player: {fileID: 3056082941397117247}
+  colorDefault: {r: 1, g: 1, b: 1, a: 1}
+  palette: {fileID: 11400000, guid: 3624fa0f3f6bdb64f95e07122e949b9f, type: 2}
+  sprites:
+  - {fileID: 5756998040016052309}
+  - {fileID: 239339822636684968}
 --- !u!1 &8636316300587153820
 GameObject:
   m_ObjectHideFlags: 0

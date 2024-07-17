@@ -23,10 +23,10 @@ namespace Game.Net.Host
         public const float HeartbeatPeriod = 15;
         
         public NetworkServer Server { get; private set; }
+        public string JoinCode { get; private set; }
         
         private UnityTransport transport { get; set; }
         private Allocation allocation { get; set; }
-        private string joinCode { get; set; }
         private string lobbyId { get; set; }
         private Coroutine heartbeating { get; set; }
 
@@ -37,7 +37,7 @@ namespace Game.Net.Host
             this.playerPrefab = playerPrefab;
         }
         
-        public async Task StartHostAsync()
+        public async Task StartHostAsync(bool isPrivate = false)
         {
             // Creating Allocation
             try
@@ -53,9 +53,9 @@ namespace Game.Net.Host
             // Getting JoinCode
             try
             {
-                joinCode = await relay.GetJoinCodeAsync(allocation.AllocationId);
+                JoinCode = await relay.GetJoinCodeAsync(allocation.AllocationId);
                 
-                Debug.Log(joinCode);
+                Debug.Log(JoinCode);
             }
             catch (Exception e)
             {
@@ -84,10 +84,10 @@ namespace Game.Net.Host
             try
             {
                 var lobbyOptions = new CreateLobbyOptions();
-                lobbyOptions.IsPrivate = false;
+                lobbyOptions.IsPrivate = isPrivate;
                 lobbyOptions.Data = new Dictionary<string, DataObject>()
                 {
-                    {JoinCodeKey, new DataObject(DataObject.VisibilityOptions.Member, joinCode)},
+                    {JoinCodeKey, new DataObject(DataObject.VisibilityOptions.Member, JoinCode)},
                 };
 
                 var lobbyName = $"{userData.userName} #{Random.Range(0, 10000):0000}";

@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using Game.Net.Server.Services;
 using Game.Net.Shared;
 using Unity.Netcode;
 using Unity.Services.Matchmaker.Models;
@@ -15,6 +17,8 @@ namespace Game.Net.Server
         private readonly string _ip;
         private readonly int _port;
         private int _queryPort;
+        
+        private readonly Dictionary<string, int> teamIdToTeamIndex = new Dictionary<string, int>();
         
         private MatchplayBackfiller backfiller;
 
@@ -79,10 +83,21 @@ namespace Game.Net.Server
                 await backfiller.BeginBackfilling();
             }
         }
-
+        
         private void UserJoined(UserData user)
         {
-            backfiller.AddPlayerToMatch(user);
+            var team = backfiller.GetTeamByUserId(user.userAuthID);
+            Debug.Log($"Team: {user.userAuthID} {team.TeamId}");
+
+            if (!teamIdToTeamIndex.TryGetValue(team.TeamId, out var teamIndex))
+            {
+                teamIndex = teamIdToTeamIndex.Count;
+                teamIdToTeamIndex.Add(team.TeamId, teamIndex);
+            }
+
+            user.teamIndex = teamIndex;
+            
+            //backfiller.AddPlayerToMatch(user);
             MultiplayAllocationService.AddPlayer();
             if (!backfiller.NeedsPlayers() && backfiller.IsBackfilling)
             {

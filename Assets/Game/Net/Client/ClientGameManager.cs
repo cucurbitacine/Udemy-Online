@@ -14,13 +14,13 @@ namespace Game.Net.Client
 {
     public class ClientGameManager : GameManager
     {
-        private NetworkClient Client { get; set; }
-        private MatchplayMatchmaker Matchmaker { get; set; }
-
         private UnityTransport transport;
         private JoinAllocation allocation;
         
-        private UserData userData;
+        private NetworkClient Client { get; set; }
+        private MatchplayMatchmaker Matchmaker { get; set; }
+        
+        public UserData UserData { get; private set; }
         
         public async Task<bool> InitializeAsync()
         {
@@ -39,7 +39,7 @@ namespace Game.Net.Client
             if (authState == AuthState.Authenticated)
             {
                 // Creating User Data
-                userData = new UserData
+                UserData = new UserData
                 {
                     userName = PlayerPrefs.GetString(NetworkServer.PlayerNameKey, string.Empty),
                     userAuthID = AuthenticationService.Instance.PlayerId,
@@ -103,7 +103,7 @@ namespace Game.Net.Client
         private void ConnectClient()
         {
             // Generating Payloads
-            var json = JsonUtility.ToJson(userData);
+            var json = JsonUtility.ToJson(UserData);
             var payload = NetworkServer.Encoding.GetBytes(json);
             networkManager.NetworkConfig.ConnectionData = payload;
             
@@ -120,13 +120,15 @@ namespace Game.Net.Client
             }
         }
 
-        public async void MatchmakeAsync(Action<MatchmakerPollingResult> response)
+        public async void MatchmakeAsync(bool teamMode, Action<MatchmakerPollingResult> response)
         {
             if (Matchmaker.IsMatchmaking)
             {
                 return;
             }
 
+            UserData.userGamePreferences.gameQueue = teamMode ? GameQueue.Team : GameQueue.Solo;
+            
             var result = await GetMatchAsync();
             
             response?.Invoke(result);
@@ -134,7 +136,7 @@ namespace Game.Net.Client
         
         private async Task<MatchmakerPollingResult> GetMatchAsync()
         {
-            var match = await Matchmaker.Matchmake(userData);
+            var match = await Matchmaker.Matchmake(UserData);
 
             if (match.result == MatchmakerPollingResult.Success)
             {

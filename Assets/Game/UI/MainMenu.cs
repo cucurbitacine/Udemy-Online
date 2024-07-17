@@ -1,5 +1,4 @@
 using System;
-using System.Threading.Tasks;
 using Game.Net;
 using Game.Net.Client;
 using Game.Net.Host;
@@ -14,10 +13,11 @@ namespace Game.UI
     public class MainMenu : MonoBehaviour
     {
         [Header("Match")]
-        [SerializeField] private Button findButton;
-        [SerializeField] private TMP_Text findButtonText;
         [SerializeField] private TMP_Text statusQueueText;
         [SerializeField] private TMP_Text timeQueueText;
+        [SerializeField] private Button findButton;
+        [SerializeField] private TMP_Text findButtonText;
+        [SerializeField] private Toggle teamToggle;
         
         [Header("Lobby")]
         [SerializeField] private Button lobbyButton;
@@ -28,6 +28,7 @@ namespace Game.UI
         
         [Header("Host")]
         [SerializeField] private Button hostButton;
+        [SerializeField] private Toggle privateToggle;
 
         public bool isMatchmaking { get; private set; }
         public bool isCancelling { get; private set; }
@@ -57,8 +58,10 @@ namespace Game.UI
             }
 
             if (isBusy) return;
+
+            var teamMode = teamToggle && teamToggle.isOn;
             
-            ClientController.Instance.GameManager.MatchmakeAsync(OnMatchmade);
+            ClientController.Instance.GameManager.MatchmakeAsync(teamMode, OnMatchmade);
             
             findButtonText.text = "Cancel";
             statusQueueText.text = "Searching...";
@@ -83,8 +86,10 @@ namespace Game.UI
         {
             if (isBusy) return;
             isBusy = true;
+
+            var privateMode = privateToggle && privateToggle.isOn;
             
-            await HostController.Instance.GameManager.StartHostAsync();
+            await HostController.Instance.GameManager.StartHostAsync(privateMode);
             
             isBusy = false;
         }

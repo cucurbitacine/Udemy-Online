@@ -22,6 +22,7 @@ namespace Game.Player
         [SerializeField] private GameObject clientProjectilePrefab;
 
         [Header("References")]
+        [SerializeField] private TankPlayer player;
         [SerializeField] private Transform spawnPoint;
         [SerializeField] private GameObject flash;
         [SerializeField] private Collider2D playerCollider;
@@ -73,7 +74,7 @@ namespace Game.Player
             }
         }
         
-        private void SpawnProjectile(Vector2 point, Vector2 direction)
+        private void SpawnProjectileClient(Vector2 point, Vector2 direction, int teamIndex)
         {
             if (flash)
             {
@@ -82,11 +83,16 @@ namespace Game.Player
             }
 
             var rotation = Quaternion.LookRotation(Vector3.forward, direction);
-            var projectile = Instantiate(clientProjectilePrefab, point, rotation);
+            var clientProjectile = Instantiate(clientProjectilePrefab, point, rotation);
 
-            IgnoreCollision(projectile);
+            IgnoreCollision(clientProjectile);
 
-            Launch(projectile);
+            if (clientProjectile.TryGetComponent<Projectile>(out var projectile))
+            {
+                projectile.Initialize(teamIndex);
+            }
+            
+            Launch(clientProjectile);
         }
         
         [ServerRpc]
@@ -95,26 +101,31 @@ namespace Game.Player
             wallet.Pick(costToFire);
             
             var rotation = Quaternion.LookRotation(Vector3.forward, direction);
-            var projectile = Instantiate(serverProjectilePrefab, point, rotation);
+            var serverProjectile = Instantiate(serverProjectilePrefab, point, rotation);
 
-            IgnoreCollision(projectile);
+            IgnoreCollision(serverProjectile);
 
-            if (projectile.TryGetComponent<DealDamageOnContact>(out var damage))
+            if (serverProjectile.TryGetComponent<Projectile>(out var projectile))
+            {
+                projectile.Initialize(player.TeamIndex.Value);
+            }
+            
+            if (serverProjectile.TryGetComponent<DealDamageOnContact>(out var damage))
             {
                 damage.SetOwner(OwnerClientId);
             }
             
-            Launch(projectile);
+            Launch(serverProjectile);
             
-            SpawnProjectileClientRpc(point, direction);
+            SpawnProjectileClientRpc(point, direction, player.TeamIndex.Value);
         }
 
         [ClientRpc]
-        private void SpawnProjectileClientRpc(Vector2 point, Vector2 direction)
+        private void SpawnProjectileClientRpc(Vector2 point, Vector2 direction, int teamIndex)
         {
             if (IsOwner) return;
 
-            SpawnProjectile(point, direction);
+            SpawnProjectileClient(point, direction, teamIndex);
         }
 
         private void UpdateFlash()
@@ -149,7 +160,7 @@ namespace Game.Player
             var direction = spawnPoint.up;
 
             SpawnProjectileServerRpc(point, direction);
-            SpawnProjectile(point, direction);
+            SpawnProjectileClient(point, direction, player.TeamIndex.Value);
 
             timerFire = fireRate > 0 ? 1f / fireRate : 0f;
         }

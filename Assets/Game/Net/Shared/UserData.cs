@@ -7,6 +7,7 @@ namespace Game.Net.Shared
     {
         public string userName;
         public string userAuthID;
+        public int teamIndex = -1;
         public GameInfo userGamePreferences = new GameInfo();
     }
 

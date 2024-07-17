@@ -1,6 +1,5 @@
 using TMPro;
 using Unity.Collections;
-using Unity.Netcode;
 using UnityEngine;
 
 namespace Game.UI.LeaderboardDisplay
@@ -8,10 +7,10 @@ namespace Game.UI.LeaderboardDisplay
     public class LeaderboardEntityDisplay : MonoBehaviour
     {
         [SerializeField] private TMP_Text info;
-        [SerializeField] private Color myColor = Color.yellow;
 
         public ulong ClientId { get; private set; }
-        public FixedString32Bytes PlayerName { get; private set; }
+        public int TeamIndex { get; private set; }
+        public FixedString32Bytes DisplayName { get; private set; }
         public int Score { get; private set; }
         
         public int number;
@@ -27,33 +26,42 @@ namespace Game.UI.LeaderboardDisplay
         {
             if (info)
             {
-                info.text = $"{number}. {PlayerName.Value} ({Score})";
+                info.text = $"{number}. {DisplayName.Value} ({Score})";
             }
         }
         
-        public void UpdateColor()
-        {
-            if (info && NetworkManager.Singleton)
-            {
-                if (NetworkManager.Singleton.LocalClientId == ClientId)
-                {
-                    info.color = myColor;
-                }
-            }
-        }
-        
-        public void UpdatePlayer(ulong clientId, FixedString32Bytes playerName, int score)
+        public void Initilalize(ulong clientId, FixedString32Bytes displayName, int score)
         {
             ClientId = clientId;
-            PlayerName = playerName;
+            DisplayName = displayName;
             
             Score = score;
 
-            UpdateColor();
+            //UpdateColor();
             
             UpdateText();
         }
 
+        public void Initilalize(int teamIndex, FixedString32Bytes displayName, int score)
+        {
+            TeamIndex = teamIndex;
+            DisplayName = displayName;
+            
+            Score = score;
+
+            //UpdateColor();
+            
+            UpdateText();
+        }
+
+        public void SetColor(Color color)
+        {
+            if (info)
+            {
+                info.color = color;
+            }
+        }
+        
         public void UpdateScore(int score)
         {
             Score = score;
